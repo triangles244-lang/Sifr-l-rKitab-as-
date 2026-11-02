@@ -1,0 +1,6 @@
+.buildozer/
+bin/
+__pycache__/
+*.skit
+*.skit.bak
+*.skit.tmp

@@ -1,0 +1,746 @@
+#:import dp kivy.metrics.dp
+#:import sp kivy.metrics.sp
+#:import Window kivy.core.window.Window
+#:set ICONS 'assets/icons/'
+
+# ===================================================================== bazalar
+<HLabel>:
+    text_size: self.size
+    halign: 'left'
+    valign: 'middle'
+
+<TLabel>:
+    size_hint_y: None
+    height: self.texture_size[1]
+    text_size: self.width, None
+    halign: 'left'
+    valign: 'middle'
+
+<Icon>:
+    size_hint: None, None
+    size: dp(24), dp(24)
+    mipmap: True
+
+<Divider>:
+    size_hint_y: None
+    height: dp(1)
+    canvas:
+        Color:
+            rgba: app.border
+        Rectangle:
+            pos: self.x + dp(14), self.y
+            size: self.width - dp(28), self.height
+
+<Card>:
+    bg: app.card
+    canvas.before:
+        Color:
+            rgba: self.bg
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [self.radius]
+        Color:
+            rgba: self.border
+        Line:
+            rounded_rectangle: (self.x, self.y, self.width, self.height, max(min(self.radius, self.width / 2, self.height / 2), 1))
+            width: 1.1
+
+<TapCard>:
+    canvas.after:
+        Color:
+            rgba: (1, 1, 1, 0.07) if self.state == 'down' else (0, 0, 0, 0)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [self.radius]
+
+<IconTile>:
+    size_hint: None, None
+    size: dp(52), dp(52)
+    radius: dp(16)
+    padding: [(self.width - root.isize) / 2, (self.height - root.isize) / 2]
+    Icon:
+        source: root.icon
+        color: root.fg
+        size: root.isize, root.isize
+
+<IconButton>:
+    size_hint: None, None
+    size: dp(44), dp(44)
+    canvas.before:
+        Color:
+            rgba: (1, 1, 1, 0.12) if self.state == 'down' else self.bg
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [self.height / 2]
+    Icon:
+        source: root.icon
+        color: root.tint
+        size: root.isize, root.isize
+        pos_hint: {'center_x': .5, 'center_y': .5}
+
+<PillButton>:
+    size_hint_y: None
+    height: dp(60)
+    radius: self.height / 2
+    padding: dp(12), 0
+    spacing: dp(8)
+    Widget:
+    Icon:
+        source: root.icon
+        color: root.fg
+        size: (root.isize, root.isize) if root.icon else (0, 0)
+        pos_hint: {'center_y': .5}
+    Label:
+        text: root.text
+        color: root.fg
+        bold: True
+        font_size: root.fsize
+        size_hint_x: None
+        width: self.texture_size[0]
+    Widget:
+
+<CategoryRow>:
+    size_hint_y: None
+    height: dp(84)
+    bg: 0, 0, 0, 0
+    radius: dp(18)
+    padding: dp(12), dp(8)
+    spacing: dp(14)
+    IconTile:
+        icon: root.icon
+        bg: root.tile_bg
+        fg: root.tile_fg
+        pos_hint: {'center_y': .5}
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint_y: None
+        height: self.minimum_height
+        pos_hint: {'center_y': .5}
+        spacing: dp(2)
+        TLabel:
+            text: root.title
+            font_size: sp(21)
+            bold: True
+            shorten: True
+            shorten_from: 'right'
+        TLabel:
+            text: root.subtitle
+            font_size: sp(16)
+            color: app.muted
+            shorten: True
+            shorten_from: 'right'
+    Label:
+        text: str(root.count) if root.count else ''
+        size_hint_x: None
+        width: dp(28) if root.count else 0
+        color: app.muted
+        font_size: sp(18)
+    Icon:
+        source: ICONS + 'chevron_right.png'
+        color: app.muted
+        size: dp(22), dp(22)
+        pos_hint: {'center_y': .5}
+
+<InputCard>:
+    size_hint_y: None
+    height: dp(56)
+    radius: dp(16)
+    bg: app.card
+    border: app.border
+    padding: dp(16), 0, dp(6), 0
+    TextInput:
+        id: ti
+        text: root.text
+        on_text: root.text = self.text
+        hint_text: root.hint_text
+        password: root.password
+        multiline: False
+        write_tab: False
+        font_size: sp(19)
+        background_normal: ''
+        background_active: ''
+        background_color: 0, 0, 0, 0
+        foreground_color: 1, 1, 1, 1
+        hint_text_color: app.muted
+        cursor_color: app.accent
+        selection_color: 0.43, 0.9, 0.63, 0.35
+        padding: [0, (self.height - self.line_height) / 2, 0, 0]
+    IconButton:
+        icon: ICONS + ('eye.png' if root.password else 'eye_off.png')
+        tint: app.muted
+        isize: dp(22)
+        size: (dp(44), dp(44)) if root.secret_toggle else (0, dp(44))
+        opacity: 1 if root.secret_toggle else 0
+        disabled: not root.secret_toggle
+        pos_hint: {'center_y': .5}
+        on_release: root.password = not root.password
+
+<Chip>:
+    size_hint_y: None
+    height: dp(46)
+    radius: dp(23)
+    bg: app.accent if self.selected else app.card
+    border: (0, 0, 0, 0) if self.selected else app.border
+    Label:
+        text: root.text
+        bold: True
+        font_size: sp(18)
+        color: app.on_accent if root.selected else (1, 1, 1, 1)
+
+<FieldRow>:
+    size_hint_y: None
+    height: dp(58)
+    spacing: dp(8)
+    BoxLayout:
+        orientation: 'vertical'
+        HLabel:
+            text: root.caption
+            font_size: sp(14)
+            color: app.muted
+            valign: 'bottom'
+        HLabel:
+            text: root.value if (root.revealed or not root.secret) else '•' * 10
+            font_size: sp(20)
+            valign: 'top'
+            shorten: True
+            shorten_from: 'right'
+    IconButton:
+        icon: ICONS + ('eye_off.png' if root.revealed else 'eye.png')
+        tint: app.muted
+        isize: dp(22)
+        size: (dp(40), dp(40)) if root.secret else (0, dp(40))
+        opacity: 1 if root.secret else 0
+        disabled: not root.secret
+        pos_hint: {'center_y': .5}
+        on_release: root.revealed = not root.revealed
+    PillButton:
+        text: 'Kopyala'
+        icon: ICONS + 'copy.png'
+        isize: dp(18)
+        fsize: sp(17)
+        size_hint_x: None
+        width: dp(116)
+        height: dp(42)
+        bg: app.card2
+        fg: app.accent
+        pos_hint: {'center_y': .5}
+        on_release: root.dispatch('on_copy')
+
+<EntryCard>:
+    orientation: 'vertical'
+    size_hint_y: None
+    height: self.minimum_height
+    padding: dp(16)
+    spacing: dp(8)
+    radius: dp(22)
+    BoxLayout:
+        size_hint_y: None
+        height: dp(38)
+        HLabel:
+            text: root.title
+            font_size: sp(22)
+            bold: True
+            shorten: True
+            shorten_from: 'right'
+        IconButton:
+            icon: ICONS + 'edit.png'
+            tint: app.muted
+            isize: dp(20)
+            size: dp(40), dp(40)
+            pos_hint: {'center_y': .5}
+            on_release: root.dispatch('on_edit')
+    Divider:
+    FieldRow:
+        caption: 'İstifadəçi adı / e-poçt'
+        value: root.username if root.username else '—'
+        on_copy: root.dispatch('on_copy_user')
+    FieldRow:
+        caption: 'Parol'
+        value: root.password
+        secret: True
+        on_copy: root.dispatch('on_copy_pw')
+
+<ConfirmCard>:
+    orientation: 'vertical'
+    padding: dp(22)
+    spacing: dp(12)
+    radius: dp(26)
+    border: app.border
+    TLabel:
+        text: root.title
+        font_size: sp(23)
+        bold: True
+    TLabel:
+        text: root.message
+        font_size: sp(18)
+        color: app.muted
+    Widget:
+    BoxLayout:
+        size_hint_y: None
+        height: dp(54)
+        spacing: dp(10)
+        PillButton:
+            text: 'Ləğv et'
+            fsize: sp(18)
+            height: dp(54)
+            bg: app.card2
+            fg: 1, 1, 1, 1
+            on_release: root.dispatch('on_cancel')
+        PillButton:
+            text: root.ok_text
+            fsize: sp(18)
+            height: dp(54)
+            bg: app.danger_bg
+            fg: app.danger
+            on_release: root.dispatch('on_ok')
+
+<Toast>:
+    size_hint: None, None
+    size: min(dp(300), Window.width - dp(32)), dp(64)
+    pos_hint: {'center_x': .5}
+    y: dp(96)
+    opacity: 0
+    bg: 0.24, 0.33, 0.28, 1
+    border: app.border
+    radius: dp(20)
+    padding: dp(14), dp(6)
+    Label:
+        text: root.text
+        font_size: sp(17)
+        text_size: self.size
+        halign: 'center'
+        valign: 'middle'
+
+# ================================================================== ekranlar
+<LockScreen>:
+    ScrollView:
+        do_scroll_x: False
+        bar_width: 0
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_y: None
+            height: max(self.minimum_height, root.height)
+            padding: dp(24), dp(40), dp(24), dp(24)
+            spacing: dp(14)
+            Widget:
+            IconTile:
+                icon: ICONS + 'shield.png'
+                bg: '#1F3B2D'
+                fg: app.accent
+                size: dp(84), dp(84)
+                radius: dp(26)
+                isize: dp(48)
+                pos_hint: {'center_x': .5}
+            Label:
+                text: 'Şifrələr Kitabçası'
+                font_size: sp(30)
+                bold: True
+                size_hint_y: None
+                height: dp(44)
+            TLabel:
+                text: 'Yeni seyf yaratmaq üçün master parol seç' if root.creating else 'Seyfi açmaq üçün master parolu daxil et'
+                font_size: sp(18)
+                color: app.muted
+                halign: 'center'
+            Widget:
+                size_hint_y: None
+                height: dp(8)
+            InputCard:
+                id: master
+                hint_text: 'Master parol'
+                password: True
+                secret_toggle: True
+            InputCard:
+                id: confirm
+                hint_text: 'Master parolu təkrarla'
+                password: True
+                secret_toggle: True
+                height: dp(56) if root.creating else 0
+                opacity: 1 if root.creating else 0
+                disabled: not root.creating
+            TLabel:
+                text: 'Master parolu unutsan, bərpa yolu yoxdur. 4–5 sözdən ibarət uzun cümlə seç.' if root.creating else ''
+                font_size: sp(16)
+                color: app.muted
+                halign: 'center'
+            TLabel:
+                text: root.message
+                font_size: sp(17)
+                color: root.msg_color
+                halign: 'center'
+            PillButton:
+                text: 'Seyf yarat' if root.creating else 'Aç'
+                icon: ICONS + 'lock.png'
+                bg: app.accent
+                fg: app.on_accent
+                isize: dp(22)
+                fsize: sp(19)
+                opacity: 0.6 if root.busy else 1
+                on_release: root.submit()
+            Widget:
+                size_hint_y: 1.4
+
+<HomeScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(18), dp(20), dp(18), dp(18)
+        spacing: dp(16)
+        BoxLayout:
+            size_hint_y: None
+            height: dp(60)
+            spacing: dp(12)
+            IconTile:
+                icon: ICONS + 'shield.png'
+                bg: '#1F3B2D'
+                fg: app.accent
+                size: dp(56), dp(56)
+                radius: dp(18)
+                isize: dp(32)
+                pos_hint: {'center_y': .5}
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                pos_hint: {'center_y': .5}
+                TLabel:
+                    text: 'Şifrələr Kitabçası'
+                    font_size: sp(25)
+                    bold: True
+                    shorten: True
+                    shorten_from: 'right'
+                TLabel:
+                    text: 'Şəxsi rəqəmsal seyfin'
+                    font_size: sp(17)
+                    color: app.muted
+            IconButton:
+                icon: ICONS + 'sliders.png'
+                isize: dp(28)
+                pos_hint: {'center_y': .5}
+                on_release: app.go('settings')
+        ScrollView:
+            do_scroll_x: False
+            bar_width: 0
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: dp(16)
+                Card:
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    height: dp(150)
+                    padding: dp(20), dp(16)
+                    spacing: dp(4)
+                    radius: dp(24)
+                    border: app.border
+                    BoxLayout:
+                        size_hint_y: None
+                        height: dp(30)
+                        spacing: dp(10)
+                        Icon:
+                            source: ICONS + 'lock.png'
+                            color: app.accent
+                            pos_hint: {'center_y': .5}
+                        HLabel:
+                            text: 'Saxlanılan qeydlər'
+                            font_size: sp(20)
+                            color: 0.86, 0.9, 0.88, 1
+                    HLabel:
+                        text: str(app.entry_count) + ' qeyd'
+                        font_size: sp(42)
+                        bold: True
+                    HLabel:
+                        text: 'Məlumatların təhlükəsiz saxlanması'
+                        font_size: sp(18)
+                        color: app.muted
+                        size_hint_y: None
+                        height: dp(28)
+                Card:
+                    id: cat_box
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    height: self.minimum_height
+                    padding: dp(8)
+                    radius: dp(24)
+        PillButton:
+            text: 'Yeni qeyd əlavə et'
+            icon: ICONS + 'plus.png'
+            bg: app.accent
+            fg: app.on_accent
+            isize: dp(22)
+            fsize: sp(20)
+            on_release: app.new_entry(None)
+
+<CategoryScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(18), dp(20), dp(18), dp(18)
+        spacing: dp(14)
+        BoxLayout:
+            size_hint_y: None
+            height: dp(56)
+            spacing: dp(10)
+            IconButton:
+                icon: ICONS + 'back.png'
+                isize: dp(26)
+                pos_hint: {'center_y': .5}
+                on_release: app.go_back()
+            IconTile:
+                id: tile
+                size: dp(46), dp(46)
+                radius: dp(14)
+                isize: dp(26)
+                pos_hint: {'center_y': .5}
+            HLabel:
+                id: title
+                font_size: sp(24)
+                bold: True
+                shorten: True
+                shorten_from: 'right'
+            IconButton:
+                icon: ICONS + 'plus.png'
+                isize: dp(24)
+                tint: app.accent
+                pos_hint: {'center_y': .5}
+                on_release: app.new_entry(app.cat)
+        FloatLayout:
+            ScrollView:
+                do_scroll_x: False
+                bar_width: 0
+                BoxLayout:
+                    id: list
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    height: self.minimum_height
+                    spacing: dp(12)
+                    padding: 0, 0, 0, dp(12)
+            Label:
+                id: empty
+                text: 'Bu bölmədə hələ qeyd yoxdur.\nYeni qeyd üçün + düyməsinə toxun.'
+                color: app.muted
+                font_size: sp(18)
+                halign: 'center'
+                size_hint: None, None
+                size: self.texture_size
+                pos_hint: {'center_x': .5, 'center_y': .5}
+                opacity: 0
+
+<EditScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(18), dp(20), dp(18), dp(18)
+        spacing: dp(14)
+        BoxLayout:
+            size_hint_y: None
+            height: dp(56)
+            spacing: dp(10)
+            IconButton:
+                icon: ICONS + 'back.png'
+                isize: dp(26)
+                pos_hint: {'center_y': .5}
+                on_release: app.go_back()
+            HLabel:
+                text: 'Qeydi dəyiş' if root.editing_id else 'Yeni qeyd'
+                font_size: sp(24)
+                bold: True
+        ScrollView:
+            do_scroll_x: False
+            bar_width: 0
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: dp(10)
+                padding: 0, 0, 0, dp(16)
+                HLabel:
+                    text: 'Bölmə'
+                    color: app.muted
+                    font_size: sp(16)
+                    size_hint_y: None
+                    height: dp(24)
+                BoxLayout:
+                    size_hint_y: None
+                    height: dp(46)
+                    spacing: dp(8)
+                    Chip:
+                        id: chip_web
+                        text: 'Veb'
+                        on_release: root.set_cat('web')
+                    Chip:
+                        id: chip_game
+                        text: 'Oyun'
+                        on_release: root.set_cat('game')
+                    Chip:
+                        id: chip_mail
+                        text: 'E-poçt'
+                        on_release: root.set_cat('mail')
+                HLabel:
+                    text: 'Ad'
+                    color: app.muted
+                    font_size: sp(16)
+                    size_hint_y: None
+                    height: dp(24)
+                InputCard:
+                    id: title_in
+                    hint_text: 'Məsələn: Steam'
+                HLabel:
+                    text: 'İstifadəçi adı / e-poçt'
+                    color: app.muted
+                    font_size: sp(16)
+                    size_hint_y: None
+                    height: dp(24)
+                InputCard:
+                    id: user_in
+                    hint_text: 'istifadəçi adı və ya e-poçt'
+                HLabel:
+                    text: 'Parol'
+                    color: app.muted
+                    font_size: sp(16)
+                    size_hint_y: None
+                    height: dp(24)
+                InputCard:
+                    id: pw_in
+                    hint_text: 'Parol'
+                    password: True
+                    secret_toggle: True
+                PillButton:
+                    text: 'Güclü parol yarat'
+                    fsize: sp(18)
+                    height: dp(48)
+                    bg: app.card2
+                    fg: app.accent
+                    on_release: root.generate()
+                TLabel:
+                    text: root.message
+                    color: app.danger
+                    font_size: sp(17)
+                PillButton:
+                    text: 'Qeydi sil'
+                    fsize: sp(18)
+                    height: dp(48) if root.editing_id else 0
+                    opacity: 1 if root.editing_id else 0
+                    disabled: not root.editing_id
+                    bg: app.danger_bg
+                    fg: app.danger
+                    on_release: root.ask_delete()
+        PillButton:
+            text: 'Yadda saxla'
+            bg: app.accent
+            fg: app.on_accent
+            fsize: sp(20)
+            on_release: root.save()
+
+<SettingsScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(18), dp(20), dp(18), dp(18)
+        spacing: dp(16)
+        BoxLayout:
+            size_hint_y: None
+            height: dp(56)
+            spacing: dp(10)
+            IconButton:
+                icon: ICONS + 'back.png'
+                isize: dp(26)
+                pos_hint: {'center_y': .5}
+                on_release: app.go_back()
+            HLabel:
+                text: 'Ayarlar'
+                font_size: sp(24)
+                bold: True
+        ScrollView:
+            do_scroll_x: False
+            bar_width: 0
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: dp(16)
+                Card:
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    height: self.minimum_height
+                    padding: dp(8)
+                    radius: dp(24)
+                    CategoryRow:
+                        title: 'Master parolu dəyiş'
+                        subtitle: 'Bütün fayl yenidən şifrələnir'
+                        icon: ICONS + 'lock.png'
+                        tile_bg: '#1F3B2D'
+                        tile_fg: app.accent
+                        on_release: app.go('changepw')
+                    Divider:
+                    CategoryRow:
+                        title: 'Seyfi indi kilidlə'
+                        subtitle: 'Parol yenidən istəniləcək'
+                        icon: ICONS + 'shield.png'
+                        tile_bg: '#1F3B2D'
+                        tile_fg: app.accent
+                        on_release: app.lock()
+                Card:
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    height: self.minimum_height
+                    padding: dp(18)
+                    radius: dp(24)
+                    border: app.border
+                    TLabel:
+                        text: 'Kopyalanan istifadəçi adı və parol 60 saniyədən sonra buferdən silinir.\n\nTətbiq 5 dəqiqədən çox arxa fonda qalsa, seyf avtomatik kilidlənir.\n\nSeyf faylı yalnız bu telefondadır. Tətbiqi silsən fayl da silinər, master parol unudulsa bərpa yolu yoxdur.'
+                        font_size: sp(17)
+                        color: app.muted
+
+<ChangePwScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(18), dp(20), dp(18), dp(18)
+        spacing: dp(14)
+        BoxLayout:
+            size_hint_y: None
+            height: dp(56)
+            spacing: dp(10)
+            IconButton:
+                icon: ICONS + 'back.png'
+                isize: dp(26)
+                pos_hint: {'center_y': .5}
+                on_release: app.go_back()
+            HLabel:
+                text: 'Master parolu dəyiş'
+                font_size: sp(24)
+                bold: True
+        ScrollView:
+            do_scroll_x: False
+            bar_width: 0
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: dp(12)
+                InputCard:
+                    id: old_in
+                    hint_text: 'Cari master parol'
+                    password: True
+                    secret_toggle: True
+                InputCard:
+                    id: new_in
+                    hint_text: 'Yeni master parol'
+                    password: True
+                    secret_toggle: True
+                InputCard:
+                    id: new2_in
+                    hint_text: 'Yeni master parolu təkrarla'
+                    password: True
+                    secret_toggle: True
+                TLabel:
+                    text: root.message
+                    color: root.msg_color
+                    font_size: sp(17)
+        PillButton:
+            text: 'Master parolu dəyiş'
+            bg: app.accent
+            fg: app.on_accent
+            fsize: sp(20)
+            opacity: 0.6 if root.busy else 1
+            on_release: root.submit()
